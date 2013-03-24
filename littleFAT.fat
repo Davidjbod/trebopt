@@ -1,0 +1,22 @@
+#Trebuchet specifications 
+2.0   ft Distance from tip of throwing arm to wheel axle
+1.0   ft Distance from counter weight cg to wheel axle
+2.1   ft Sling Length
+1.0    ft Track height above ground
+
+10.0    lb Counter weight weight
+0.0375     lb Projectile weight
+0.25     lb Arm weight
+-1     ft Arm CG
+
+-70.0    deg Cocked arm angle - Inital angle between arm and the horizontal (clockwise = positive angles)
+0.0      deg Inital angle between arm and the horizontal (Clockwise = positive angles)
+0.104167      ft Projectile diameter (for use in drag calcs only)
+
+#Solver setup
+1			Set of equations to use (0=original, 1=modified)
+0.001		Max dt for RK 45 Method
+1.0E-15   Min dt for RK 45 Method
+1.0E-6	Tolerance for RK 45 Method
+20000		Max number of iterations
+

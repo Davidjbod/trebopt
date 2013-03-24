@@ -20,3 +20,7 @@
 1.0E-6	Tolerance for RK 45 Method
 20000		Max number of iterations
 
+#Run option flags
+0      	Interactive mode (1=yes, 0=no)
+1    	Calculate range with drag (1=yes, 0=no)
+0	    Verbose mode (1=yes, 0=no) 

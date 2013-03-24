@@ -124,13 +124,18 @@ def getinputfromfile():
     if float(indata[8])==-1.0:
         Lb=(L+l)/3.         #Bar CG
     else:
-        Lb=indata[8]
+        Lb=float(indata[8])
 
     #Sim Setup
     hmax=float(indata[14])       #Max dt for Runge-Kutta Method
     hmin=float(indata[15])       #Min dt for RK
     Tol=float(indata[16])        #Tolerance for R error
     N=int(indata[17])  	      #Max number of iterations
+
+    runopts.interactive = int(indata[19])
+    runopts.drag = int(indata[20])
+    runopts.verbose = int(indata[21])
+    
 
     #Inital values
     thetai=float(indata[9])*pi/180.	
@@ -216,9 +221,8 @@ def main(inputs,runopts):
     I=mb*(Lb-l)**2.+M*l**2.          #Bar MOI
     
     h=hmax
-   	
     newN=N+1
-		
+    
     T[0]=0.
     theta[0]=thetai
     phi[0]=phii
@@ -238,19 +242,6 @@ def main(inputs,runopts):
 
     
     Etot[0]=PEcw[0]
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     rho=0.002378
     mu=3.7372e-7
@@ -296,7 +287,8 @@ def main(inputs,runopts):
     
         rkflag=1;
         rkiter=0;
-    	#Runge-Kutta-Fehlberg Method
+        
+        #Runge-Kutta-Fehlberg Method
         while rkflag==1:
             rkiter=rkiter+1;
             #print N1,N2,L,l,theta[i-1],phi[i-1],d,g,M,m,mb,I,Lb,dthdt[i-1],dphidt[i-1],mode
@@ -352,7 +344,7 @@ def main(inputs,runopts):
                	h=delta*h;
     
             if h>hmax:
-       	       	h=hmax;
+                h=hmax;
         
             if h < hmin:
                 h=hmin;
@@ -371,7 +363,7 @@ def main(inputs,runopts):
         #Calculate projectile position
         xp[i,0]=-(L+l)*cos(theta[i])+d*cos(phi[i]);
         xp[i,1]=L*sin(theta[i])-d*sin(phi[i]);
-      	#And velocity
+        #And velocity
         vp[i,0]=(L+l)*sin(theta[i])*dthdt[i]-d*sin(phi[i])*dphidt[i]
         vp[i,1]=L*cos(theta[i])*dthdt[i]-d*cos(phi[i])*dphidt[i]
         Vtot=sqrt(vp[i,0]**2.+vp[i,1]**2.)
@@ -379,7 +371,7 @@ def main(inputs,runopts):
         #Calculate counter weight position
         xcw[i,0]=0
         xcw[i,1]=-l*sin(theta[i])
-      	#And velocity
+        #And velocity
         vcw[i,0]=0
         vcw[i,1]=-l*cos(theta[i])*dthdt[i]
 
@@ -506,14 +498,19 @@ def main(inputs,runopts):
         d2yMdt=(Lb-l)*(cos(theta[i])*dth2dten-dthdt[i]*sin(theta[i]))
         Ra=M*d2yMdt+M*g+Ten[i]*sin(phi[i])
         Fyp3[i]=Ra*cos(theta[i])
-
         Fyp4[i]=-mb*g*cos(theta[i])
-        
         Fyp5[i]=-Ten[i]*cos(pi/2.-(phi[i]-theta[i]))
 
         Mombar13[i]=((Fyp2[i]+Fyp1[i])-Fyp3[i])/l
-        Mombar34[i]=(Fyp3[i]-Fyp4[i])/(Lb-l)
-        Mombar45[i]=(Fyp4[i]-Fyp5[i])/(L-Lb)
+        if Lb==l:
+            Mombar34[i]=0
+        else:
+            Mombar34[i]=(Fyp3[i]-Fyp4[i])/(Lb-l)
+        
+        if L==Lb:
+            Mombar45[i]=0
+        else:
+            Mombar45[i]=(Fyp4[i]-Fyp5[i])/(L-Lb)
 
 
 
@@ -683,7 +680,9 @@ def main(inputs,runopts):
                     plt.plot([-l*cos(theta[i]), -l*cos(theta[i])],[0,0],marker='o',color='yellow')
                     
                 plt.grid(True)
-                plt.show()                                
+                plt.show()   
+            elif opt==0:
+                sys.exit()
 
     
     else:
@@ -698,7 +697,7 @@ def main(inputs,runopts):
 #cProfile.run('main()',sort=1, filename="treb_adapt.cprof")
 
 #stats = pstats.Stats("treb_adapt.cprof")
-##stats.print_stats()
+#stats.print_stats()
 #stats.strip_dirs().sort_stats('time').print_stats(20)
 
 if __name__ == "__main__":
@@ -718,22 +717,22 @@ if __name__ == "__main__":
         print '\n\n********* STARTING ITERATION ' + str(i+1) + ' ***************\n\n'
         [M,m,L,l,d,th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]=inputs
 
-	AL=L+l  #Set the arm length to the sum of the parts
+        AL=L+l  #Set the arm length to the sum of the parts
         if i>0:
             base=gtnew
         else:
-	    print '\n**Calculating intial range.'
+            print '\n**Calculating intial range.'
             base=main(inputs,runopts)
             
         x[0]=L+step  #vary long part of the arm (axle to tip)
         x[1]=d+step  #vary sling length
         
         inputs=[M,m,x[0],AL-x[0],d,th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]  #range with varied arm ratio
-	print '\n**Calculating range with change in arm ratio.'
+        print '\n**Calculating range with change in arm ratio.'
         z[0]=main(inputs,runopts)
         
         inputs=[M,m,L,AL-L,x[1],th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]  #range with varied sling length
-	print '\n**Calculating range with change in sling length.'
+        print '\n**Calculating range with change in sling length.'
         z[1]=main(inputs,runopts)
 
 
@@ -745,26 +744,26 @@ if __name__ == "__main__":
         z=z/z0   #Normalize gradient
         print 'z = ' +str(z)
         #time.sleep(3)
-            
+        
 	
-	#Create a quadratic eq where x is step size and f(x) is range.  Then find x that gives maximum.  
+        #Create a quadratic eq where x is step size and f(x) is range.  Then find x that gives maximum.  
         s1=-AL/40.0  
         x1=x-s1*z   #Step out some distance away 
         print 'x1 = ' + str(x1)
         inputs=[M,m,x1[0],AL-x1[0],x1[1],th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]
-	print '\n**Calculating range due to s1 change.'
+        print '\n**Calculating range due to s1 change.'
         gt1=main(inputs,runopts)  #range at x1 condition
 
         s2=-AL/20.0
         x2=x-s2*z
         print 'x2' + str(x2)
         inputs=[M,m,x2[0],AL-x2[0],x2[1],th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]
-	print '\n**Calculating range due to s2 change.'
+        print '\n**Calculating range due to s2 change.'
         gt2=main(inputs,runopts)  #range at x2 condition
 
         
         
-	#Setup f(x)=a*x^2+b*x+c=d
+        #Setup f(x)=a*x^2+b*x+c=d
         A[0,0]=0**2  #step
         A[0,1]=-0
         A[0,2]=1
@@ -775,18 +774,18 @@ if __name__ == "__main__":
         A[2,1]=s2
         A[2,2]=1
 
-	print A
+        #print A
 
         B[0,0]=base
         B[1,0]=gt1
         B[2,0]=gt2
 
-	print B
+        #print B
 
         xt=array(A.I*B)
-	print 'xt' + str(xt)
+        print 'xt' + str(xt)
         alpha=-xt[1]/(2*xt[0])   #solve for max point... f'(x)=2*a*x+b=0 => x=-b/(2*a)
-	print 'Finding alpha.'
+        print 'Finding alpha.'
         print 'alpha' + str(alpha)
         
         x=array(x-alpha*z)
@@ -796,7 +795,7 @@ if __name__ == "__main__":
         #time.sleep(10)
 
         inputs=[M,m,x[0],AL-x[0],x[1],th,mb,Lb,hmax,hmin,Tol,N,thetai,phii,dia,mode]
-	print 'Calculating new range.'
+        print 'Calculating new range.'
         gtnew=main(inputs,runopts)
 
         if gt2>gtnew:
@@ -815,8 +814,9 @@ if __name__ == "__main__":
         print '****New Range = ' + str(gtnew) + ' ft'
         if abs(resid)<endtol:
             Imax=i
-	    elapsed = time.time()-startt
-	    print 'Program run time = %(#)5.3f min' %{'#': float(elapsed/60)}
+
+            elapsed = time.time()-startt
+            print 'Program run time = %(#)5.3f min' %{'#': float(elapsed/60)}
             break
 
         #time.sleep(5)

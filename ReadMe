@@ -1,1 +1,11 @@
 A python script for optimizing the proportions of a Floating Arm Trebuchet to maximize range given a total arm length, counterweight weight, and projectile weight.  
+
+The script is run from the command line by "python Treb_adapt_arm_mass_drag_opt.py littleFAT.fat {fn}"   where {fn} is a text file that contains information on the FAT.  
+
+The script optimizes the ratio of the length of the arm from tip to axle and axle to CW.  This means the total length of the arm is constant and determined by the sum of the first two non-comment lines in the input file.  The third line contains the inital sling length.  This value is also optimized.  The rest of the input file is additional information for the software which remains constant.    
+
+The script can be run in two ways.  The first attempts to optimize the arm and sling length.  The second reads the information from the input file, performs the simulation, and lets the user interactively view plots of relevant data.  The modes are selected on the "Interactive mode" line of the input file. A value of "0" in this line runs in optimization mode.  A value of "1" lets the user view plots of the sim.  
+
+Runnging the script in optimization mode will result in the software producing output about the simulations taking place. Generally, multiple simulations (throws) take place for each iteration.  The information produced, is used by the code to update the specifications of the trebuchet for the next iteration.  
+
+Once the program has stopped.  The best trebuchet specifications will be shown under the "***Treb Specs" line.  The simulation results of this treb are shown under the "***Sime Results" line.

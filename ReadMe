@@ -1,6 +1,6 @@
 A python script for optimizing the proportions of a Floating Arm Trebuchet to maximize range given a total arm length, counterweight weight, and projectile weight.  
 
-The script is run from the command line by "python Treb_adapt_arm_mass_drag_opt.py littleFAT.fat {fn}"   where {fn} is a text file that contains information on the FAT.  
+The script is run from the command line by "python Treb_adapt_arm_mass_drag_opt.py littleFAT.fat {fn}"   where {fn} is a text file that contains information on the FAT.  An input file ending in .fat is provided as an example.  
 
 The script optimizes the ratio of the length of the arm from tip to axle and axle to CW.  This means the total length of the arm is constant and determined by the sum of the first two non-comment lines in the input file.  The third line contains the inital sling length.  This value is also optimized.  The rest of the input file is additional information for the software which remains constant.    
 

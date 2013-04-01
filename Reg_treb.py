@@ -434,6 +434,7 @@ def main(inputs,runopts):
     
     
     xtip=zeros([N,2])
+    x1=zeros([N,2])
     xbarcg=zeros([N,2])
     
     dthdt=zeros([N,1])	#Derivative of Theta wrt time
@@ -711,11 +712,19 @@ def main(inputs,runopts):
         if i==1:
             theta[i]=theta[i-1]+h*dthdt[i-1]
             phi[i]=phi[i-1]+h*dphidt[i-1]
-        else:
+        elif i==2:
             theta[i]=theta[i-1]+3./2.*h*dthdt[i-1]-1./2.*h*dthdt[i-2]
             phi[i]=phi[i-1]+3./2.*h*dphidt[i-1]-1./2.*h*dphidt[i-2]
-            
-        #print 'Theta ' + str(theta[i]*180/pi)
+        else:
+            theta[i]=theta[i-1]+h*(23./12.*dthdt[i-1]-4./3.*dthdt[i-2]+5./12.*dthdt[i-3])
+            phi[i]=   phi[i-1]+h*(23./12.*dphidt[i-1]-4./3.*dphidt[i-2]+5./12.*dphidt[i-3])
+##        elif i==4:
+##            theta[i]=theta[i-1]+h*(55./24.*dthdt[i-1]-59./24.*dthdt[i-2]+37./24.*dthdt[i-3]-3./8.*dthdt[i-4])
+##            phi[i]=phi[i-1]+h*(55./24.*dphidt[i-1]-59./24.*dphidt[i-2]+37./24.*dphidt[i-3]-3./8.*dphidt[i-4])
+##        else:
+##            theta[i]=theta[i-1]+h*(1901./720.*dthdt[i-1]-1387./360.*dthdt[i-2]+109./30.*dthdt[i-3]-637./360.*dthdt[i-4]+251./720.*dthdt[i-4])
+##            phi[i]=phi[i-1]+h*(1901./720.*dphidt[i-1]-1387./360.*dphidt[i-2]+109./30.*dphidt[i-3]-637./360.*dphidt[i-4]+251./720.*dphidt[i-4])
+        
         
         #print 'Phi ' + str(phi[i]*180/pi)
         
@@ -733,7 +742,17 @@ def main(inputs,runopts):
             #Since no answer for dpsidt and dpsidt2 when on ground from function
             dpsidt2=(dpsidt[i]-dpsidt[i-1])/h
         else:    
-            psi[i]=psi[i-1]+3./2.*h*dpsidt[i]-1./2.*h*dpsidt[i-1]
+            if i==1:
+                psi[i]=psi[i-1]+h*dpsidt[i-1]
+            elif i==2:
+                psi[i]=psi[i-1]+3./2.*h*dpsidt[i-1]-1./2.*h*dpsidt[i-2]
+            else:
+                psi[i]=psi[i-1]+h*(23./12.*dpsidt[i-1]-4./3.*dpsidt[i-2]+5./12.*dpsidt[i-3])
+##            elif i==4:
+##                psi[i]=psi[i-1]+h*(55./24.*dpsidt[i-1]-59./24.*dpsidt[i-2]+37./24.*dpsidt[i-3]-3./8.*dpsidt[i-4])
+##            else:
+##                psi[i]=psi[i-1]+h*(1901./720.*dpsidt[i-1]-1387./360.*dpsidt[i-2]+109./30.*dpsidt[i-3]-637./360.*dpsidt[i-4]+251./720.*dpsidt[i-4])
+ 
         #print 'Psi ' + str(psi[i]*180/pi)
         
         
@@ -764,8 +783,11 @@ def main(inputs,runopts):
         v4[i,1]=l1*sin(theta[i])*dthdt[i]-l4*sin(phi[i]+theta[i])*(dphidt[i]+dthdt[i])
         VtotCW=sqrt(v4[i,0]**2.+v4[i,1]**2.)
         
-        xtip[i,0]=-l2*cos(theta[i]-pi/2)
-        xtip[i,1]=l5-l2*sin(theta[i]-pi/2)
+        xtip[i,0]=-l2*sin(theta[i])
+        xtip[i,1]=l2*cos(theta[i])
+        
+        x1[i,0]=l1*sin(theta[i])
+        x1[i,1]=-l1*cos(theta[i])
 
         xbarcg[i,0]=0
         xbarcg[i,1]=0
@@ -908,7 +930,7 @@ def main(inputs,runopts):
                 newN=i
                 break
         else:
-            if Rnd[i]>10 and Rprime[i]<-0.1:
+            if Rnd[i]>10 and Rprime[i]<-0.05:
                 newN=i
                 break  
     
@@ -960,7 +982,7 @@ def main(inputs,runopts):
     print 'Release Angles -- Theta = %(#)5.3f deg  -- Psi = %(#2)5.3f deg  -- Phi = %(#3)5.3f deg' %{'#': float(theta[I]*180/pi),'#2': float(psi[I]*180/pi),'#3': float(phi[I]*180/pi)}
     
     print 'Total Energy -- Initial = %(#)5.3f lb-ft  -- Max = %(#2)5.3f lb-ft   -- Min = %(#3)5.3f lb-ft' %{'#': float(Etot[1]),'#2': float(max(Etot[0:I])),'#3': float(min(Etot[0:i]))}
-    print 'Energy Efficiency = %(#)5.3f %%' %{'#': float(KEp[I]/(Etot[0]-PEcw[I]-PEbar[I]-KEbar[I])*100)}
+    print 'Energy Efficiency into projectile = %(#)5.3f %%' %{'#': float(KEp[I]/(Etot[0]-PEcw[I])*100)}
 
 
 
@@ -1015,6 +1037,7 @@ def main(inputs,runopts):
             elif opt == 2:
                 plt.plot(T[0:I+1],theta[0:I+1]*180/pi,label='Theta')
                 plt.plot(T[0:I+1],phi[0:I+1]*180/pi,label='Phi')
+                plt.plot(T[0:I+1],psi[0:I+1]*180/pi,label='Psi')
                 plt.plot(T[0:I+1],angout[0:I+1]*180/pi,label='Proj Angle')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Angle (deg)')
@@ -1069,10 +1092,11 @@ def main(inputs,runopts):
             elif opt==8:
                 j=floor(linspace(1,I+1,10, endpoint=True))
                 for i in j:
-                    plt.plot([xcw[i,0], xtip[i,0]],[xcw[i,1], xtip[i,1]], color='blue')
-                    plt.plot([xp[i,0], xtip[i,0]],[xp[i,1], xtip[i,1]], color='red')
-                    plt.plot([xbarcg[i,0],xbarcg[i,0]],[xbarcg[i,1],xbarcg[i,1]],marker='o',color='green')
-                    plt.plot([-l*cos(theta[i]), -l*cos(theta[i])],[0,0],marker='o',color='yellow')
+                    plt.plot([x1[i,0], xtip[i,0]],[x1[i,1], xtip[i,1]], color='blue')
+                    plt.plot([x3[i,0], xtip[i,0]],[x3[i,1], xtip[i,1]], color='red')
+                    plt.plot([x1[i,0], x4[i,0]],[x1[i,1], x4[i,1]], color='red')
+                    plt.plot([x4[i,0],x4[i,0]],[x4[i,1],x4[i,1]],marker='o',color='green')
+                    #plt.plot([-l*cos(theta[i]), -l*cos(theta[i])],[0,0],marker='o',color='yellow')
                     
                 plt.grid(True)
                 plt.show()   

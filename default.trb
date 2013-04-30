@@ -16,7 +16,7 @@
 #Solver setup
 0.01	  Max dt for RK 45 Method
 1.0E-20   Min dt for RK 45 Method
-5.0E-2	  Tolerance for RK 45 Method  has to be 1e-8 to match Wintreb
+1.0E-1	  Tolerance for Adams Method 
 20000		Max number of iterations
 
 #Run option flags

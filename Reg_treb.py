@@ -1354,13 +1354,13 @@ def gss(inputs,a,b,eps,N,s,AL):
     #GSS to maximize range
     C=(-1+sqrt(5))/2
     x1=C*a+(1-C)*b
-    print 'fx1'
+    ##print 'fx1'
     fx1 = float(func(inputs[:],x1,s,AL))
     x2 = (1-C)*a + C*b
-    print 'fx2'
+    ##print 'fx2'
     fx2 = float(func(inputs[:],x2,s,AL))
     print '-----------------------------------------------------------------------------------------------------------------'
-    print '       a             x1                x2                b          f(x1)           f(x2)           b - a'
+    print '       a             x1                x2              b            f(x1)         f(x2)         b - a'
     print '-----------------------------------------------------------------------------------------------------------------'
     print ' %(#)9.5g\t %(#2)9.5g\t %(#3)9.9g\t %(#4)9.9g\t  %(#5)9.9g   %(#6)9.9g   %(#7)9.9g' %{'#': float(a),'#2':float(x1),'#3':float(x2),'#4':float(b),'#5':float(fx1),'#6':float(fx2),'#7':float(b-a)}
     #print str(x1)+'\t'+str(x2)+'\t'+str(fx1)+'\t'+str(fx2)+'\t'+str(x2-x1)
@@ -1464,43 +1464,43 @@ if __name__ == "__main__":
         if i>0:
             base=gtnew
         else:
-            print '\n**Calculating intial range.'
+            print '\n******Calculating intial range.******'
             base=main(inputs,runopts)
             
         x[0]=l1+step  #vary short part of the arm (axle to tip)
         x[1]=l3+step   #vary sling length
         
         inputs=[M,m,mb,x[0],AL-x[0],l3,l4,l5,Lb,thetai,dia,hmax,hmin,Tol,N]  #range with varied arm ratio
-        print '\n**Calculating range with change in arm ratio.'
+        print '\n******Calculating range with change in arm ratio.******'
         z[0]=main(inputs,runopts)
         
         inputs=[M,m,mb,l1,l2,x[1],l4,l5,Lb,thetai,dia,hmax,hmin,Tol,N]  #range with varied sling length
-        print '\n**Calculating range with change in sling length.'
+        print '\n******Calculating range with change in sling length.******'
         z[1]=main(inputs,runopts)
-        print 'z = ' + str(z-base)
+        print 'Gradient z = ' + str(z-base)
 
         z=(z-base)/step  #gradient
 
 
         
         z0=sqrt(z[0]**2+z[1]**2)
-        print 'z0 = ' + str(z0)
+        #print 'z0 = ' + str(z0)
         z=z/z0   #Normalize gradient
-        print 'norm z = ' + str(z)
+        print 'normalized gradient z = ' + str(z)
         #time.sleep(3)
         
-        print 'In GSS'
+        print '\n******Using GSS to maximize range in current serach direction.******'
         runopts.gss=1
         alpha=gss(inputs,0,1,10**-3.,50,z,AL)
         runopts.gss=0
     
         
-        print 'alpha = ' + str(alpha)
+        print 'Optimal step size alpha = ' + str(alpha)
         
         x=array(x+alpha*z)
 
-        print 'xchange = ' + str(+alpha*z)
-        print 'New x ' + str(x)
+        print 'Optimal change = ' + str(+alpha*z)
+        print 'New x = ' + str(x)
         
         #time.sleep(10)
 
@@ -1514,8 +1514,8 @@ if __name__ == "__main__":
             gtnew=main(inputs,runopts)
 
 
-        print 'base range = ' + str(base)
-        print 'gtnew range = ' + str(gtnew) + ' alpha = ' + str(alpha)
+        print 'Original range = ' + str(base)
+        print 'New range with optimal step size = ' + str(gtnew)
         
         resid=gtnew-base
         if abs(resid)<=1.0:
@@ -1534,6 +1534,7 @@ if __name__ == "__main__":
             break
 
         if stopflag==1:
+            print 'Exiting...'
             sys.exit()
 
         #time.sleep(5)
